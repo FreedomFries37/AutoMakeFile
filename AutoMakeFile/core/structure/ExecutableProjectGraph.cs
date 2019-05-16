@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -41,18 +42,25 @@ namespace AutoMakeFile.core.structure {
 			var visited = new HashSet<FileNode>();
 			nodeStack.Push(output._MainFile);
 
-			while (nodeStack.Count > 0) {
-				var current = nodeStack.Pop();
-				visited.Add(current);
+			do {
+				while (nodeStack.Count > 0) {
+					var current = nodeStack.Pop();
+					visited.Add(current);
 
-				foreach (var dependency in GetDependencies(current.FullName)) {
-					var fileNode = output[dependency];
-					output.AddDependency(fileNode, current);
-					if (!visited.Contains(fileNode)) {
-						nodeStack.Push(fileNode);
+					foreach (var dependency in GetDependencies(current.FullName)) {
+						var fileNode = output[dependency];
+						if (!output.AddDependency(fileNode, current)) return null;
+						if (!visited.Contains(fileNode)) {
+							nodeStack.Push(fileNode);
+						}
 					}
 				}
-			}
+
+				var fileNodes = from filenode in output.nodes where !visited.Contains(filenode) select filenode;
+				foreach (var fileNode in fileNodes) {
+					if(!visited.Contains(fileNode)) nodeStack.Push(fileNode);
+				}
+			} while (visited.Count < fileInfos.Count);
 
 
 			return output;
@@ -60,7 +68,9 @@ namespace AutoMakeFile.core.structure {
 
 		protected bool AddDependency(FileNode dependency, FileNode dependent) {
 			var dep = new Dependency(dependency, dependent);
-			if (dependencies[dependent].Contains(dep)) return false;
+			if (!dependencies.ContainsKey(dependent)) {
+				dependencies.Add(dependent, new List<Dependency>());
+			} else if (dependencies[dependent].Contains(dep)) return false;
 			edges.Add(dep);
 			dependencies[dependent].Add(dep);
 			return true;
@@ -77,23 +87,65 @@ namespace AutoMakeFile.core.structure {
 
 		public List<string> Files() => new List<string>(from f in nodes select f.FullName);
 		public List<string> Files(string extension) => new List<string>(from f in nodes where f.Extension.Equals(extension) select f.FullName);
+		
+		
+		
 		/// <summary>
 		/// Gets the list of files that this files requires to compile
 		/// </summary>
 		/// <returns>the list</returns>
-		public static List<string> GetDependencies(string FullName) {
-			List<string> output = new List<string>();
+		public static List<string> GetDependencies(string fullName) {
+			var output = new List<string>();
+			
+			var includeRegex = new Regex("#\\s*include\\s+\"(?<up>(\\.\\.\\\\)+)?(?<dir>(\\w+\\\\)+)?(?<file_name>\\w+(.h|.c))\"");
+			var allText = File.ReadAllText(fullName);
+
+			DirectoryInfo dirInfo = new FileInfo(fullName).Directory;
+		
 			
 			
+			var matchCollection = includeRegex.Matches(allText);
+			foreach (Match o in matchCollection) {
+
+				string path = "";
+				
+				var included = o.Groups["file_name"];
+				var upDirsGroup = o.Groups["up"];
+				
+				
+				if (upDirsGroup.Success) {
+					string upDirsString = upDirsGroup.Value;
+					while (upDirsString.Contains(@"..\")) {
+						upDirsString = upDirsString.Remove(0, 3);
+
+						dirInfo = dirInfo?.Parent;
+					}
+					
+				}
+
+				path += dirInfo.FullName;
+				
+				var dirGroup = o.Groups["dir"];
+				if (dirGroup.Success) {
+					path += dirGroup.Value;
+				} else {
+					path += "\\";
+				}
+
+				path += included.Value;
+
+				output.Add(path);
+			}
+
 			return output;
 		}
 
 		private bool FindMain() {
-			Regex mainRegex = new Regex(@"int\s+main\s*\(\s*((int\s+\w+\s*,\s*char\s*\*\s*\w+\s*)|void)?\){");
+			Regex mainRegex = new Regex(@"int\s+main\s*\(\s*((int\s+\w+\s*,\s*char\s*\*\s*\w+\s*\[\s*\]\s*)|void)?\)\s*{");
 
 			FileNode main = null;
-			
-			foreach (string file in Files(".c")) {
+			List<string> files = Files(".c");
+			foreach (string file in files) {
 				string allText = File.ReadAllText(file);
 				if (mainRegex.Match(allText).Success) {
 					if (main == null) {

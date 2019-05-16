@@ -19,5 +19,9 @@ namespace AutoMakeFile.core.input.resource_collectors {
 			output.AddRange(hFiles);
 			return output;
 		}
+
+		public override bool Verify() {
+			return Directory.Exists(path);
+		}
 	}
 }

@@ -27,5 +27,9 @@ namespace AutoMakeFile.core.structure {
 				return ((dependency != null ? dependency.GetHashCode() : 0) * 397) ^ (dependent != null ? dependent.GetHashCode() : 0);
 			}
 		}
+
+		public override string ToString() {
+			return $"{nameof(dependency)}: {dependency}, {nameof(dependent)}: {dependent}";
+		}
 	}
 }

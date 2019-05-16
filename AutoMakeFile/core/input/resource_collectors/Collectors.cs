@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 
 namespace AutoMakeFile.core.input.resource_collectors {
-	public abstract class Collector {
+	public abstract class Collector : ICollector {
 		public string path { get; }
 		public List<string> ignores { get; }
 
@@ -12,7 +12,9 @@ namespace AutoMakeFile.core.input.resource_collectors {
 		}
 
 		public abstract List<FileInfo> GetFiles();
-
+		public abstract bool Verify();
+		
+		
 		protected bool Equals(Collector other) {
 			return string.Equals(path, other.path);
 		}

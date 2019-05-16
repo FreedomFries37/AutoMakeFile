@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using AutoMakeFile.core.input.resource_collectors;
+using AutoMakeFile.core.input.sorting_methods;
 
 namespace AutoMakeFile.core.input {
 	public class FileTracker {
@@ -13,7 +14,7 @@ namespace AutoMakeFile.core.input {
 		private Dictionary<Collector, List<FileInfo>> collectorToFiles;
 		private List<FileInfo> files;
 		
-		public IComparer<FileInfo> FileComparer { protected get; set; }
+		public FileSorter FileComparer { protected get; set; } = new LexogragicalSort();
 
 		public FileTracker() {
 			collectors = new Collection<Collector>();
@@ -49,9 +50,18 @@ namespace AutoMakeFile.core.input {
 			files.Sort(FileComparer);
 		}
 
-		public void Sort(IComparer<FileInfo> comparer) {
+		public void PrintFiles() {
+			Console.WriteLine("Files included:");
+			foreach (var fileInfo in files) {
+				Console.WriteLine("\t" + fileInfo.FullName);
+			}
+		}
+
+		public void Sort(FileSorter comparer) {
+			var oldFileSorter = FileComparer;
 			FileComparer = comparer;
 			Sort();
+			FileComparer = oldFileSorter;
 		}
 
 		public bool AddCollector(Collector c) {
@@ -70,5 +80,6 @@ namespace AutoMakeFile.core.input {
 		public List<FileInfo> GetFiles() {
 			return new List<FileInfo>(files);
 		}
+		
 	}
 }

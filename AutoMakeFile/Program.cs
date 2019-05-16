@@ -1,5 +1,7 @@
 ﻿using System;
 using AutoMakeFile.core.input;
+using AutoMakeFile.core.input.sorting_methods;
+using AutoMakeFile.core.structure;
 
 namespace AutoMakeFile {
 	class Program {
@@ -11,7 +13,15 @@ namespace AutoMakeFile {
 
 			fileTracker.AddDirectory("test_project");
 			fileTracker.Update();
-			fileTracker.Sort(new LexogragicalSort());
+			fileTracker.FileComparer = new ModifiedSort();
+			fileTracker.Sort();
+			fileTracker.PrintFiles();
+			ExecutableProjectGraph executableProjectGraph = ExecutableProjectGraph.GenerateProjectGraph(fileTracker);
+			
+			
+			
+			
+			
 			
 		}
 	}
