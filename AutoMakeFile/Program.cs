@@ -7,8 +7,11 @@ namespace AutoMakeFile {
 			Console.WriteLine("Hello World!");
 			
 			FileTracker fileTracker = new FileTracker();
-			
-			
+
+
+			fileTracker.AddDirectory("test_project");
+			fileTracker.Update();
+			fileTracker.Sort(new LexogragicalSort());
 			
 		}
 	}

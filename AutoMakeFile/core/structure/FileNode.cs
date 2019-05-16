@@ -22,23 +22,22 @@ namespace AutoMakeFile.core.structure {
 		public string Extension => FileInfo.Extension;
 
 		public string FullName => FileInfo.FullName;
-
-		public DateTime LastWriteTimeUtc {
-			get => FileInfo.LastWriteTimeUtc;
-			set => FileInfo.LastWriteTimeUtc = value;
-		}
-
+		
 		public string Name => FileInfo.Name;
 
-		
-		/// <summary>
-		/// Gets the list of files that this files requires to compile
-		/// </summary>
-		/// <returns>the list</returns>
-		public List<string> GetDependencies() {
-			
-			
-			return new List<string>();
+		protected bool Equals(FileNode other) {
+			return FullName.Equals(other.FullName);
+		}
+
+		public override bool Equals(object obj) {
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != this.GetType()) return false;
+			return Equals((FileNode) obj);
+		}
+
+		public override int GetHashCode() {
+			return FullName.GetHashCode();
 		}
 	}
 }

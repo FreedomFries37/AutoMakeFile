@@ -5,4 +5,16 @@
         <TargetFramework>netcoreapp2.1</TargetFramework>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Compile Remove="src\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="src\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="src\**" />
+    </ItemGroup>
+
 </Project>

@@ -16,7 +16,7 @@ namespace AutoMakeFile.core.input.resource_collectors {
 			var hFiles = from f in Directory.EnumerateFiles(path, "*.h", SearchOption.AllDirectories)
 				where !ignores.Contains(new FileInfo(f).Name)
 				select new FileInfo(f);
-			
+			output.AddRange(hFiles);
 			return output;
 		}
 	}
