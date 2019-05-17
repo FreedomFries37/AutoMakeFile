@@ -140,6 +140,44 @@ namespace AutoMakeFile.core.structure {
 			return output;
 		}
 
+		public void PrintStructure() {
+			var order = new List<FileNode> {_MainFile};
+			order.AddRange(from f in nodes where !f.Equals(_MainFile) select f);
+			
+			foreach (FileNode fileNode in order) {
+				var nodeStack = new Stack<FileNode>();
+				var indentStack = new Stack<int>();
+				
+				nodeStack.Push(fileNode);
+				indentStack.Push(0);
+				
+				Console.WriteLine("Dependency Tree for " + fileNode.Name + ":");
+				
+				while (nodeStack.Count > 0) {
+					var cNode = nodeStack.Pop();
+					var cIndent = indentStack.Pop();
+					
+					for (int i = 0; i < cIndent; i++) {
+						Console.Write("\t");
+					}
+					Console.WriteLine(cNode.Name);
+
+					foreach (var dependency in GetDependencies(cNode.FullName)) {
+						var f = this[dependency];
+						nodeStack.Push(f);
+						indentStack.Push(cIndent + 1);
+					}
+				}
+				
+				Console.WriteLine();
+			}
+			
+		}
+
+		public override string ToString() {
+			return $"[ProjectGraph  File Count: {nodes.Count}]";
+		}
+
 		private bool FindMain() {
 			Regex mainRegex = new Regex(@"int\s+main\s*\(\s*((int\s+\w+\s*,\s*char\s*\*\s*\w+\s*\[\s*\]\s*)|void)?\)\s*{");
 

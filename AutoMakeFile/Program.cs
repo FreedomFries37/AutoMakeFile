@@ -19,7 +19,7 @@ namespace AutoMakeFile {
 			ExecutableProjectGraph executableProjectGraph = ExecutableProjectGraph.GenerateProjectGraph(fileTracker);
 			
 			
-			
+			executableProjectGraph.PrintStructure();
 			
 			
 			
