@@ -9,14 +9,14 @@ namespace AutoMakeFile.core.input.resource_collectors {
 		
 		public override List<FileInfo> GetFiles() {
 			List<FileInfo> output = new List<FileInfo>();
-			var cFiles = from f in Directory.EnumerateFiles(path, "*.c", SearchOption.AllDirectories)
-				where !ignores.Contains(new FileInfo(f).Name)
-				select new FileInfo(f);
-			output.AddRange(cFiles);
-			var hFiles = from f in Directory.EnumerateFiles(path, "*.h", SearchOption.AllDirectories)
-				where !ignores.Contains(new FileInfo(f).Name)
-				select new FileInfo(f);
-			output.AddRange(hFiles);
+			
+			foreach (string fileEnding in Program.FileEndings) {
+				var cFiles = from f in Directory.EnumerateFiles(path, "*" + fileEnding, SearchOption.AllDirectories)
+					where !ignores.Contains(new FileInfo(f).Name)
+					select new FileInfo(f);
+				output.AddRange(cFiles);
+			}
+			
 			return output;
 		}
 

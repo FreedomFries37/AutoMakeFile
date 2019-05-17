@@ -1,10 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using AutoMakeFile.core.input;
 using AutoMakeFile.core.input.sorting_methods;
 using AutoMakeFile.core.structure;
 
 namespace AutoMakeFile {
+	
 	class Program {
+
+		public static List<string> FileEndings { get; set; } = new List<string> {".h", ".c"};
+		
+
 		static void Main(string[] args) {
 			Console.WriteLine("Hello World!");
 			

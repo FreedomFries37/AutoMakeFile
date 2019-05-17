@@ -89,7 +89,7 @@ namespace AutoMakeFile.core.structure {
 		public List<string> Files(string extension) => new List<string>(from f in nodes where f.Extension.Equals(extension) select f.FullName);
 		
 		
-		
+	
 		/// <summary>
 		/// Gets the list of files that this files requires to compile
 		/// </summary>
