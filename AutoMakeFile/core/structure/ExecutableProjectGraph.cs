@@ -49,7 +49,9 @@ namespace AutoMakeFile.core.structure {
 
 					foreach (var dependency in GetDependencies(current.FullName)) {
 						var fileNode = output[dependency];
-						if (!output.AddDependency(fileNode, current)) return null;
+						if (!output.AddDependency(fileNode, current)) {
+							return null;
+						}
 						if (!visited.Contains(fileNode)) {
 							nodeStack.Push(fileNode);
 						}
@@ -70,7 +72,10 @@ namespace AutoMakeFile.core.structure {
 			var dep = new Dependency(dependency, dependent);
 			if (!dependencies.ContainsKey(dependent)) {
 				dependencies.Add(dependent, new List<Dependency>());
-			} else if (dependencies[dependent].Contains(dep)) return false;
+			} else if (dependencies[dependent].Contains(dep)) {
+
+				return true;
+			}
 			edges.Add(dep);
 			dependencies[dependent].Add(dep);
 			return true;
@@ -79,7 +84,7 @@ namespace AutoMakeFile.core.structure {
 		protected FileNode this[string fullName] {
 			get {
 				foreach (FileNode node in nodes) {
-					if (node.FullName.Equals(fullName)) return node;
+					if (node.FullName.ToLower().Equals(fullName.ToLower())) return node;
 				}
 				throw new FileNotFoundException();
 			}
@@ -94,7 +99,7 @@ namespace AutoMakeFile.core.structure {
 		/// Gets the list of files that this files requires to compile
 		/// </summary>
 		/// <returns>the list</returns>
-		public static List<string> GetDependencies(string fullName) {
+		private static List<string> GetDependencies(string fullName) {
 			var output = new List<string>();
 			
 			var includeRegex = new Regex("#\\s*include\\s+\"(?<up>(\\.\\.\\\\)+)?(?<dir>(\\w+\\\\)+)?(?<file_name>\\w+(.h|.c))\"");
@@ -136,6 +141,34 @@ namespace AutoMakeFile.core.structure {
 
 				output.Add(path);
 			}
+
+			return output;
+		}
+		
+		
+
+		public List<string> GetFullDependencies(string fullFileName) {
+			var output = new List<string>();
+			var visited = new HashSet<FileNode>();
+			var visitNext = new Queue<string>();
+			visitNext.Enqueue(fullFileName);
+
+			while (visitNext.Count > 0) {
+				var current = visitNext.Dequeue();
+				var fileNode = this[current];
+				visited.Add(fileNode);
+				output.Add(current);
+
+				if (dependencies.ContainsKey(fileNode)) {
+					var cDependencies = dependencies[fileNode];
+					foreach (var cDependency in cDependencies) {
+						if (!visited.Contains(cDependency.dependency)) {
+							visitNext.Enqueue(cDependency.dependency.FullName);
+						}
+					}
+				}
+			}
+
 
 			return output;
 		}

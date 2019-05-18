@@ -1,17 +1,34 @@
 using System.IO;
+using System.Linq;
 
 namespace AutoMakeFile.core.reactor.rules {
 	public class ObjectRule : IRuleGenerator{
 		private string destinationFile { get; }
-		private FileInfo[] operants { get; }
+		private string sourceFile { get; }
+		private string[] operants { get; }
 
-		public ObjectRule(string destinationFile, params FileInfo[] operants) {
+		private MakeFileGenerator _makeFileGenerator;
+
+		public ObjectRule(MakeFileGenerator makeFileGenerator, string destinationFile, string sourceFile, string[] operants) {
+			_makeFileGenerator = makeFileGenerator;
+			PathFixer f = new PathFixer(_makeFileGenerator.BaseDirectory);
+			
 			this.destinationFile = destinationFile;
-			this.operants = operants;
+			this.sourceFile = f.CreateRelativePath(sourceFile);
+			this.operants = (from operant in operants select f.CreateRelativePath(operant)).ToArray();
 		}
 
+
+		
 		public Rule GetRule() {
-			throw new System.NotImplementedException();
+			string bashCommand = $"{Program.CompilationSettings.Compiler} -c " +
+								$"{_makeFileGenerator.CStandardString()} " +
+								$"{string.Join(" ", _makeFileGenerator.Flags.ToList())} " +
+								$"{sourceFile}";
+								
+			
+			
+			return new Rule(destinationFile, operants, new []{bashCommand}, Rule.RuleType.OBJ);
 		}
 	}
 }

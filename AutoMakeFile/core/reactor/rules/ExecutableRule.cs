@@ -6,12 +6,17 @@ namespace AutoMakeFile.core.reactor.rules {
 		private string[] objectFiles { get; }
 
 		public ExecutableRule(string outputName, params string[] objectFiles) {
+			
 			this.outputName = outputName;
 			this.objectFiles = objectFiles;
 		}
 
 		public Rule GetRule() {
-			throw new System.NotImplementedException();
+			string bashCommand = $"{Program.CompilationSettings.Compiler} -o " +
+								$"{outputName} " +
+								$"{string.Join(' ', objectFiles)} -lm";
+			
+			return new Rule(outputName, objectFiles, new []{bashCommand}, Rule.RuleType.EXE);
 		}
 	}
 }

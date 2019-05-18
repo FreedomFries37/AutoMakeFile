@@ -3,6 +3,6 @@ namespace AutoMakeFile.core.reactor {
 		C89,
 		C99,
 		C11,
-		c18
+		C18
 	}
 }
